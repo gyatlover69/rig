@@ -27,11 +27,10 @@ app.post('/chat', async (req, res) => {
     } catch (error) {
         console.error("Gemini Core Error:", error);
         
-        // Graceful error messages so the game script doesn't hang or freeze up
         if (error.status === 503 || error.message.includes("503")) {
-            res.json({ print: "Hello world!" });
+            res.json({ text: "Arrr! Google's servers are overloaded right now, try chatting again in a second!" });
         } else {
-            res.json({ print: ` ${error.message || "Unknown Failure"}` });
+            res.json({ text: `Arrr, error code: ${error.message || "Unknown Failure"}` });
         }
     }
 });
