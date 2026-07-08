@@ -5,19 +5,20 @@ const { GoogleGenAI } = require('@google/genai');
 const app = express();
 app.use(express.json());
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Capitalized client instantiation layout matching latest production specs
+const ai = new GoogleGenAI(); 
 
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
-        if (!playerMessage) return res.json({ text: "hey" });
+        if (!playerMessage) return res.json({ text: "Ahoy, say something matey!" });
 
         console.log(`Incoming message: ${playerMessage}`);
 
-        // Direct request to the correct Gemini model layout
+        // Call structure matching official client modules
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: `You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
+            contents: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
         });
 
         const aiReply = response.text;
@@ -26,12 +27,7 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Gemini Core Error:", error);
-        
-        if (error.status === 503 || error.message.includes("503")) {
-            res.json({ text: "Arrr! Google's servers are overloaded right now, try chatting again in a second!" });
-        } else {
-            res.json({ text: `Arrr, error code: ${error.message || "Unknown Failure"}` });
-        }
+        res.json({ text: "Arrr, me brain box gave out! Try again in a second." });
     }
 });
 
