@@ -5,8 +5,9 @@ const { GoogleGenAI } = require('@google/genai');
 const app = express();
 app.use(express.json());
 
-// Explicitly pass the API key to satisfy the new project object verification
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); 
+// Explicitly pass the key. If your Environment variable is missing, it falls back to a clean string alert
+const GEMINI_KEY = process.env.GEMINI_API_KEY || "";
+const ai = new GoogleGenAI({ apiKey: GEMINI_KEY }); 
 
 app.post('/chat', async (req, res) => {
     try {
@@ -14,6 +15,10 @@ app.post('/chat', async (req, res) => {
         if (!playerMessage) return res.json({ text: "Ahoy, say something matey!" });
 
         console.log(`Incoming message: ${playerMessage}`);
+
+        if (!GEMINI_KEY || GEMINI_KEY === "") {
+            return res.json({ text: "Arrr, your GEMINI_API_KEY variable is missing on Render!" });
+        }
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -26,7 +31,7 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Gemini Core Error:", error);
-        res.json({ text: "Arrr, me brain box gave out! Try again in a second." });
+        res.json({ text: `Arrr, me brain box broke! Error: ${error.message || "Unknown Connection Wall"}` });
     }
 });
 
