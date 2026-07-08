@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
 
-const app = reportExpress = express();
+const app = express();
 app.use(express.json());
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -21,7 +21,11 @@ app.post('/chat', async (req, res) => {
             body: JSON.stringify({
                 model: "gpt-4o-mini",
                 messages: [
-                    { role: "system", content: "You are a helpful Roblox NPC. Keep responses under 2 sentences." },
+                    { 
+                        role: "system", 
+                        // CHANGE THE TEXT INSIDE THE QUOTES BELOW TO WHATEVER PERSONALITY YOU WANT!
+                        content: "You are a quiet, friendly guy. You're extremely obsessive over the user. Keep answers very short, under 2 sentences." 
+                    },
                     { role: "user", content: playerMessage }
                 ],
                 max_tokens: 80
@@ -29,7 +33,7 @@ app.post('/chat', async (req, res) => {
         });
 
         const data = await aiResponse.json();
-        res.json({ text: data.choices[0].message.content });
+        res.json({ text: data.choices.message.content });
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
     }
@@ -37,3 +41,4 @@ app.post('/chat', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
+
