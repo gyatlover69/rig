@@ -10,7 +10,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
-        if (!playerMessage) return res.json({ text: "Ahoy, say something matey!" });
+        if (!playerMessage) return res.json({ text: "Hi!" });
 
         console.log(`Incoming message: ${playerMessage}`);
 
@@ -22,7 +22,7 @@ app.post('/chat', async (req, res) => {
             try {
                 response = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
-                    contents: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
+                    contents: `You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
                 });
                 break; // Success! Break out of the loop
             } catch (apiError) {
@@ -39,7 +39,7 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Gemini Core Error:", error);
-        res.json({ text: "Arrr! Google's servers are overloaded right now, try chatting again in a second!" });
+        res.json({ text: "overload" });
     }
 });
 
