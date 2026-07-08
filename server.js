@@ -5,9 +5,7 @@ const { GoogleGenAI } = require('@google/genai');
 const app = express();
 app.use(express.json());
 
-// Explicitly pass the key. If your Environment variable is missing, it falls back to a clean string alert
-const GEMINI_KEY = process.env.GEMINI_API_KEY || "";
-const ai = new GoogleGenAI({ apiKey: GEMINI_KEY }); 
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post('/chat', async (req, res) => {
     try {
@@ -16,10 +14,7 @@ app.post('/chat', async (req, res) => {
 
         console.log(`Incoming message: ${playerMessage}`);
 
-        if (!GEMINI_KEY || GEMINI_KEY === "") {
-            return res.json({ text: "Arrr, your GEMINI_API_KEY variable is missing on Render!" });
-        }
-
+        // A single, direct request with NO retry loops
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
@@ -30,8 +25,14 @@ app.post('/chat', async (req, res) => {
         res.json({ text: aiReply });
 
     } catch (error) {
-        console.error("Gemini Core Error:", error);
-        res.json({ text: `Arrr, me brain box broke! Error: ${error.message || "Unknown Connection Wall"}` });
+        console.error("Gemini Core Error:", error.message);
+        
+        // Short, clean error message so it doesn't flood your Roblox chat bubble
+        if (error.status === 429 || error.message.includes("quota")) {
+            res.json({ text: "Arrr! I'm out of breath from talking too much. Give me one minute!" });
+        } else {
+            res.json({ text: "Arrr, me brain box gave out! Try again." });
+        }
     }
 });
 
