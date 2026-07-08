@@ -39,7 +39,6 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Gemini Core Error:", error);
-        res.json({ text: "overload" });
     }
 });
 
