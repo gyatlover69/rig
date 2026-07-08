@@ -12,7 +12,7 @@ app.post('/chat', async (req, res) => {
         const { playerMessage } = req.body;
         if (!playerMessage) return res.json({ text: "Ahoy, say something matey!" });
 
-        console.log(`Incoming message from Roblox: ${playerMessage}`);
+        console.log(`Incoming message: ${playerMessage}`);
 
         const response = await fetch(`https://googleapis.com{GEMINI_API_KEY}`, {
             method: 'POST',
@@ -20,23 +20,32 @@ app.post('/chat', async (req, res) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{
-                        text: `You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`
+                        text: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`
                     }]
                 }]
             })
         });
 
-        const data = await response.json();
-        console.log("Raw response data from Gemini:", JSON.stringify(data));
+        // Convert the raw data stream directly to text format
+        const rawText = await response.text();
+        console.log("Raw Response received:", rawText);
 
-        // Absolute foolproof unpacking of Gemini's internal text layer lists
-        let aiReply = "Ahoy! Me brain box got confused.";
+        // Fail-safe keyword string extractor to completely bypass structural array reading
+        let aiReply = "";
+        const partsTextSplit = rawText.split('"text": "');
         
-        if (data && data.candidates && data.candidates[0]) {
-            const firstCandidate = data.candidates[0];
-            if (firstCandidate.content && firstCandidate.content.parts && firstCandidate.content.parts[0]) {
-                aiReply = firstCandidate.content.parts[0].text;
-            }
+        if (partsTextSplit.length > 1) {
+            const extractContent = partsTextSplit[1].split('"');
+            aiReply = extractContent[0];
+            
+            // Clean up basic JSON escaping characters
+            aiReply = aiReply.replace(/\\n/g, " ").replace(/\\"/g, '"');
+        }
+
+        // If the string search fails, display a diagnostic hint instead of a generic crash message
+        if (!aiReply || aiReply.trim() === "") {
+            res.json({ text: `API Response Structure: ${rawText.substring(0, 40)}...` });
+            return;
         }
 
         console.log(`Sending back to Roblox: ${aiReply}`);
@@ -50,4 +59,3 @@ app.post('/chat', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Gemini server live on port ${PORT}`));
-
