@@ -20,7 +20,7 @@ app.post('/chat', async (req, res) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{
-                        text: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`
+                        text: `You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`
                     }]
                 }]
             })
@@ -29,13 +29,14 @@ app.post('/chat', async (req, res) => {
         const data = await response.json();
         console.log("Raw response data from Gemini:", JSON.stringify(data));
 
-        // Fixed data extraction specifically for Gemini 1.5 format with array indices
+        // Absolute foolproof unpacking of Gemini's internal text layer lists
         let aiReply = "Ahoy! Me brain box got confused.";
         
-        if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-            aiReply = data.candidates[0].content.parts[0].text;
-        } else {
-            console.error("Unexpected Gemini Layout:", JSON.stringify(data));
+        if (data && data.candidates && data.candidates[0]) {
+            const firstCandidate = data.candidates[0];
+            if (firstCandidate.content && firstCandidate.content.parts && firstCandidate.content.parts[0]) {
+                aiReply = firstCandidate.content.parts[0].text;
+            }
         }
 
         console.log(`Sending back to Roblox: ${aiReply}`);
@@ -49,3 +50,4 @@ app.post('/chat', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Gemini server live on port ${PORT}`));
+
