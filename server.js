@@ -5,8 +5,8 @@ const { GoogleGenAI } = require('@google/genai');
 const app = express();
 app.use(express.json());
 
-// Capitalized client instantiation layout matching latest production specs
-const ai = new GoogleGenAI(); 
+// Explicitly pass the API key to satisfy the new project object verification
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); 
 
 app.post('/chat', async (req, res) => {
     try {
@@ -15,7 +15,6 @@ app.post('/chat', async (req, res) => {
 
         console.log(`Incoming message: ${playerMessage}`);
 
-        // Call structure matching official client modules
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
