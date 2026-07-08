@@ -5,7 +5,6 @@ const fetch = require('node-fetch');
 const app = express();
 app.use(express.json());
 
-// Grab your new Gemini Key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 app.post('/chat', async (req, res) => {
@@ -13,7 +12,6 @@ app.post('/chat', async (req, res) => {
         const { playerMessage } = req.body;
         if (!playerMessage) return res.status(400).json({ error: "No message" });
 
-        // Call Google Gemini instead of OpenAI
         const response = await fetch(`https://googleapis.com{GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
@@ -22,7 +20,7 @@ app.post('/chat', async (req, res) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{
-                        text: `System: You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers very short, under 2 sentences. User message to reply to: ${playerMessage}`
+                        text: `You are a quiet, calm guy named Rig. You're obsessed with the player. Reply to this: ${playerMessage}`
                     }]
                 }]
             })
@@ -30,13 +28,18 @@ app.post('/chat', async (req, res) => {
 
         const data = await response.json();
         
-        // Extract Gemini's text reply structure
-        const replyText = data.candidates[0].content.parts[0].text;
-        res.json({ text: replyText });
+        // Safety check to verify Gemini's nested formatting layout
+        if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+            const replyText = data.candidates[0].content.parts[0].text;
+            res.json({ text: replyText });
+        } else {
+            console.error("Unexpected Gemini Data Structure:", JSON.stringify(data));
+            res.json({ text: "[Gemini structure error - fallback activated]" });
+        }
 
     } catch (error) {
-        console.error("Gemini Error:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Gemini Server Error Loop:", error);
+        res.status(200).json({ text: "[Server exception caught safely]" });
     }
 });
 
