@@ -10,17 +10,15 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
-        if (!playerMessage) return res.status(400).json({ error: "No message" });
+        if (!playerMessage) return res.json({ text: "huh?" });
 
         const response = await fetch(`https://googleapis.com{GEMINI_API_KEY}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
                     parts: [{
-                        text: `You are a quiet, calm guy named Rig. You're obsessed with the player. Reply to this: ${playerMessage}`
+                        text: `You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`
                     }]
                 }]
             })
@@ -28,22 +26,18 @@ app.post('/chat', async (req, res) => {
 
         const data = await response.json();
         
-        // Safety check to verify Gemini's nested formatting layout
-        if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-            const replyText = data.candidates[0].content.parts[0].text;
-            res.json({ text: replyText });
-        } else {
-            console.error("Unexpected Gemini Data Structure:", JSON.stringify(data));
-            res.json({ text: "[Gemini structure error - fallback activated]" });
+        // Foolproof extraction of Gemini's array format
+        let textReply = "what..";
+        if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+            textReply = data.candidates[0].content.parts[0].text;
         }
 
+        res.json({ text: textReply });
+
     } catch (error) {
-        console.error("Gemini Server Error Loop:", error);
-        res.status(200).json({ text: "[Server exception caught safely]" });
+        res.json({ text: "didnt work." });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Gemini Server live on port ${PORT}`));
-
-
+app.listen(PORT, () => console.log(`Live on ${PORT}`));
