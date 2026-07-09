@@ -18,15 +18,14 @@ app.post('/chat', async (req, res) => {
             return res.json({ text: "Arrr, your GROQ_API_KEY variable is missing on Render!" });
         }
 
-        // CORRECTED ENDPOINT PATH DIRECT TO THE DEV SERVERS
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const response = await fetch("https://groq.com", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "llama3-8b-8192", // High-speed unmetered free-tier engine
+                model: "llama-3.1-8b-instant", // Updated current production model name
                 messages: [
                     { 
                         role: "system", 
@@ -41,7 +40,6 @@ app.post('/chat', async (req, res) => {
         const data = await response.json();
         console.log("Raw response from Groq:", JSON.stringify(data));
 
-        // Safely extract the generation data layers
         let aiReply = "";
         if (data && data.choices && data.choices[0] && data.choices[0].message) {
             aiReply = data.choices[0].message.content;
