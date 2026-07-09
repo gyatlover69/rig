@@ -11,7 +11,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
-        if (!playerMessage) return res.json({ text: "Ahoy, say something matey!" });
+        if (!playerMessage) return res.json({ text: "hey" });
 
         console.log(`Incoming message: ${playerMessage}`);
 
@@ -20,7 +20,7 @@ app.post('/chat', async (req, res) => {
             messages: [
                 { 
                     role: "system", 
-                    content: "You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences." 
+                    content: "You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences." 
                 },
                 { role: "user", content: playerMessage }
             ],
@@ -36,7 +36,7 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        res.json({ text: `Arrr, error code: ${error.message || "Engine Error"}` });
+        res.json({ text: `${error.message || "Engine Error"}` });
     }
 });
 
