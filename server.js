@@ -5,6 +5,8 @@ const fetch = require('node-fetch');
 const app = express();
 app.use(express.json());
 
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
@@ -12,50 +14,51 @@ app.post('/chat', async (req, res) => {
 
         console.log(`Incoming message: ${playerMessage}`);
 
-        // Alternative public connection directly to the high-speed Llama engine
-        const response = await fetch("https://openrouter.ai", {
+        if (!GROQ_API_KEY) {
+            return res.json({ text: "Arrr, your GROQ_API_KEY variable is missing on Render!" });
+        }
+
+        // Direct secure request to Groq's official high-speed cloud platform
+        const response = await fetch("https://groq.com", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://render.com",
-                "X-Title": "Roblox AI NPC Proxy"
+                "Authorization": `Bearer ${GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3-8b-instruct:free", // Completely un-metered free fallback model
+                model: "llama3-8b-8192", // Officially supported high-speed free tier model
                 messages: [
                     { 
                         role: "system", 
                         content: "You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences." 
                     },
                     { role: "user", content: playerMessage }
-                ]
+                ],
+                max_tokens: 80
             })
         });
 
         const data = await response.json();
-        console.log("Raw response from public gateway:", JSON.stringify(data));
+        console.log("Raw response from Groq:", JSON.stringify(data));
 
-        // Direct key text string checker
+        // Unpack Groq's standard response format safely
         let aiReply = "";
-        const rawString = JSON.stringify(data);
-        
-        if (rawString.includes('"content":"')) {
-            aiReply = rawString.split('"content":"')[1].split('"')[0];
-            aiReply = aiReply.replace(/\\n/g, " ").replace(/\\"/g, '"').replace(/\\'/g, "'");
+        if (data && data.choices && data.choices[0] && data.choices[0].message) {
+            aiReply = data.choices[0].message.content;
         }
 
         if (!aiReply || aiReply.trim() === "") {
-            aiReply = "Ahoy! Give me another sentence, matey!";
+            aiReply = "Ahoy, me skull gears are a bit rusty! Try chatting again.";
         }
 
         console.log(`Sending back to Roblox: ${aiReply}`);
         res.json({ text: aiReply });
 
     } catch (error) {
-        console.error("Server Error Loop:", error);
-        res.json({ text: "Ahoy! Let's try that conversation again, matey!" });
+        console.error("Groq Server Error Loop:", error);
+        res.json({ text: `Arrr, error code: ${error.message || "Unknown Failure"}` });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Public proxy server live on port ${PORT}`));
+app.listen(PORT, () => console.log(`Groq Proxy live on port ${PORT}`));
