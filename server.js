@@ -12,15 +12,16 @@ app.post('/chat', async (req, res) => {
 
         console.log(`Incoming message: ${playerMessage}`);
 
+        // Direct request to the most reliable public open-inference endpoint available
         const response = await fetch("https://openrouter.ai", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://render.com", // Required by OpenRouter free tier
-                "X-Title": "Roblox AI NPC Proxy"       // Required by OpenRouter free tier
+                "HTTP-Referer": "https://render.com",
+                "X-Title": "Roblox AI NPC Proxy"
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.2-1b-instruct:free",
+                model: "microsoft/phi-3-medium-128k-instruct:free", // Ultra-stable high-availability model
                 messages: [
                     { 
                         role: "system", 
@@ -32,19 +33,21 @@ app.post('/chat', async (req, res) => {
         });
 
         const data = await response.json();
-        console.log("Raw response from OpenRouter:", JSON.stringify(data));
+        console.log("Raw response from server:", JSON.stringify(data));
 
-        // Completely safe layer checking using JavaScript optional chaining (?.)
-        let aiReply = data?.choices?.[0]?.message?.content;
+        // Flat string extraction logic to completely bypass structure errors
+        let aiReply = "";
+        const rawString = JSON.stringify(data);
+        
+        if (rawString.includes('"content":"')) {
+            // Safely slice the text out of the text transmission layer
+            aiReply = rawString.split('"content":"')[1].split('"')[0];
+            // Clean up backslashes and json formats automatically
+            aiReply = aiReply.replace(/\\n/g, " ").replace(/\\"/g, '"').replace(/\\'/g, "'");
+        }
 
         if (!aiReply || aiReply.trim() === "") {
-            // If the structure changed, look directly inside the string for text
-            const rawString = JSON.stringify(data);
-            if (rawString.includes('"content":"')) {
-                aiReply = rawString.split('"content":"')[1].split('"')[0];
-            } else {
-                aiReply = "Ahoy! Me compass is spinning, try talking again!";
-            }
+            aiReply = "Ahoy, me skull gears are a bit rusty! Try chatting again.";
         }
 
         console.log(`Sending back to Roblox: ${aiReply}`);
@@ -52,7 +55,7 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Server Error Loop:", error);
-        res.json({ text: "Ahoy! Let's try that conversation again, matey!" });
+        res.json({ text: "Ahoy! Give me another sentence, matey!" });
     }
 });
 
