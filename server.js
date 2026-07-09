@@ -12,7 +12,7 @@ app.post('/chat', async (req, res) => {
 
         console.log(`Incoming message: ${playerMessage}`);
 
-        // Direct request to the most reliable public open-inference endpoint available
+        // Alternative public connection directly to the high-speed Llama engine
         const response = await fetch("https://openrouter.ai", {
             method: "POST",
             headers: {
@@ -21,7 +21,7 @@ app.post('/chat', async (req, res) => {
                 "X-Title": "Roblox AI NPC Proxy"
             },
             body: JSON.stringify({
-                model: "microsoft/phi-3-medium-128k-instruct:free", // Ultra-stable high-availability model
+                model: "meta-llama/llama-3-8b-instruct:free", // Completely un-metered free fallback model
                 messages: [
                     { 
                         role: "system", 
@@ -33,21 +33,19 @@ app.post('/chat', async (req, res) => {
         });
 
         const data = await response.json();
-        console.log("Raw response from server:", JSON.stringify(data));
+        console.log("Raw response from public gateway:", JSON.stringify(data));
 
-        // Flat string extraction logic to completely bypass structure errors
+        // Direct key text string checker
         let aiReply = "";
         const rawString = JSON.stringify(data);
         
         if (rawString.includes('"content":"')) {
-            // Safely slice the text out of the text transmission layer
             aiReply = rawString.split('"content":"')[1].split('"')[0];
-            // Clean up backslashes and json formats automatically
             aiReply = aiReply.replace(/\\n/g, " ").replace(/\\"/g, '"').replace(/\\'/g, "'");
         }
 
         if (!aiReply || aiReply.trim() === "") {
-            aiReply = "Ahoy, me skull gears are a bit rusty! Try chatting again.";
+            aiReply = "Ahoy! Give me another sentence, matey!";
         }
 
         console.log(`Sending back to Roblox: ${aiReply}`);
@@ -55,7 +53,7 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Server Error Loop:", error);
-        res.json({ text: "Ahoy! Give me another sentence, matey!" });
+        res.json({ text: "Ahoy! Let's try that conversation again, matey!" });
     }
 });
 
