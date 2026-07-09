@@ -10,14 +10,14 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
-        if (!playerMessage) return res.json({ text: "Ahoy, say something matey!" });
+        if (!playerMessage) return res.json({ text: "hey" });
 
         console.log(`Incoming message: ${playerMessage}`);
 
         // A single, direct request with NO retry loops
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: `You are a high-energy pirate NPC who uses words like Ahoy and Matey. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
+            contents: `You are a quiet, friendly companion named Rig. You're extremely obsessive over the user. Keep answers in all lowercase. Keep answers very short, under 2 sentences. Reply to this: ${playerMessage}`,
         });
 
         const aiReply = response.text;
@@ -29,9 +29,9 @@ app.post('/chat', async (req, res) => {
         
         // Short, clean error message so it doesn't flood your Roblox chat bubble
         if (error.status === 429 || error.message.includes("quota")) {
-            res.json({ text: "Arrr! I'm out of breath from talking too much. Give me one minute!" });
+            res.json({ text: "can you give me a minute." });
         } else {
-            res.json({ text: "Arrr, me brain box gave out! Try again." });
+            res.json({ text: "uhh.. what?" });
         }
     }
 });
