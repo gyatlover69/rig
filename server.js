@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { Groq } = require('groq-sdk'); // Load the official client engine
+const { Groq } = require('groq-sdk'); 
 
 const app = express();
 app.use(express.json());
@@ -15,7 +15,6 @@ app.post('/chat', async (req, res) => {
 
         console.log(`Incoming message: ${playerMessage}`);
 
-        // The SDK builds the correct API address links in the background automatically
         const chatCompletion = await groq.chat.completions.create({
             messages: [
                 { 
@@ -24,22 +23,22 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "qwen/qwen3.6-27b",
+            model: "llama3-8b-8192", // <-- 100% Active, hyper-fast official Groq model
             max_tokens: 80
         });
 
-        // FIXED EXTRACTION: Added the missing [0] index array accessor required for JS
-        const aiReply = chatCompletion.choices[0].message.content || "i have nothing to say..";
+        // FIXED ARRAY INDEX PATH FOR GROQ-SDK
+        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // Send it back out to your game
+        // Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        // Changed fallback slightly so you can tell if it's hitting the error block
-        res.json({ reply: "backend error: " + error.message });
+        // Returns the actual raw network/API error to your Roblox screen so you see exactly what failed
+        res.json({ reply: "api issue: " + error.message });
     }
 });
 
