@@ -24,25 +24,22 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "openai/gpt-oss-20b",
-            max_tokens: 150
+            model: "qwen/qwen3.6-27b",
+            max_tokens: 80
         });
 
-        // 1. FIXED SDK EXTRACTION: Added the exact [0] index array accessor
-        let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
-
-        // 2. Strip thinking blocks safely if they exist
-        aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        // FIXED EXTRACTION: Added the missing [0] index array accessor required for JS
+        const aiReply = chatCompletion.choices[0].message.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // 3. Send it back out to your game
+        // Send it back out to your game
         res.json({ reply: aiReply });
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        // Permanently removed "huh.." so you see the real error if a setting breaks
-        res.json({ reply: "server error: " + error.message });
+        // Changed fallback slightly so you can tell if it's hitting the error block
+        res.json({ reply: "backend error: " + error.message });
     }
 });
 
