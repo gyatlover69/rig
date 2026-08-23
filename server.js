@@ -29,7 +29,12 @@ app.post('/chat', async (req, res) => {
         });
 
         // 1. Fetch raw reply text using the correct variable name
-        let aiReply = chatCompletion.choices[0].message.content;
+ // 1. Fetch raw reply text using the correct array extraction path
+let aiReply = chatCompletion.choices[0].message.content;
+
+// 2. Strip thinking blocks if the model reasons out loud
+aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
 
         // 2. Strip thinking blocks if the model reasons out loud
         aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
