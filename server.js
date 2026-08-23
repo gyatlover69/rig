@@ -28,15 +28,10 @@ app.post('/chat', async (req, res) => {
             max_tokens: 150
         });
 
-        // 1. Fetch raw reply text using the correct variable name
- // 1. Fetch raw reply text using the correct array extraction path
-let aiReply = chatCompletion.choices[0].message.content;
+        // 1. Fixed Node.js SDK Extraction Path
+        let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
-// 2. Strip thinking blocks if the model reasons out loud
-aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-
-        // 2. Strip thinking blocks if the model reasons out loud
+        // 2. Strip thinking blocks safely if they exist
         aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         console.log(`Sending back to Roblox: ${aiReply}`);
@@ -46,7 +41,8 @@ aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        res.json({ reply: `${error.message || "Engine Error"}` });
+        // Changed fallback slightly so you can tell if it's hitting the error block
+        res.json({ reply: "backend error: " + error.message });
     }
 });
 
