@@ -24,7 +24,8 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "llama-3.3-70b-versatile", // <-- RIGHT (uses :)
+            model: "qwen/qwen3.6-27b",
+, // <-- RIGHT (uses :)
             max_tokens: 80
         });
 
