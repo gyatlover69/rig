@@ -28,7 +28,7 @@ app.post('/chat', async (req, res) => {
             max_tokens: 150
         });
 
-        // 1. Fixed Node.js SDK Extraction Path
+        // 1. FIXED SDK EXTRACTION: Added the exact [0] index array accessor
         let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         // 2. Strip thinking blocks safely if they exist
@@ -41,8 +41,8 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        // Changed fallback slightly so you can tell if it's hitting the error block
-        res.json({ reply: "backend error: " + error.message });
+        // Permanently removed "huh.." so you see the real error if a setting breaks
+        res.json({ reply: "server error: " + error.message });
     }
 });
 
