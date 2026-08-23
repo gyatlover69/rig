@@ -11,7 +11,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
-        if (!playerMessage) return res.json({ text: "hey" });
+        if (!playerMessage) return res.json({ reply: "hey" });
 
         console.log(`Incoming message: ${playerMessage}`);
 
@@ -24,27 +24,24 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "qwen/qwen3.6-27b",
-            max_tokens: 80
+            model: "openai/gpt-oss-20b",
+            max_tokens: 150
         });
 
-        // Safe direct extraction string layout path
-        const aiReply = chatCompletion.choices[0].message.content;
+        // 1. Fetch raw reply text using the correct variable name
+        let aiReply = chatCompletion.choices[0].message.content;
+
+        // 2. Strip thinking blocks if the model reasons out loud
+        aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         console.log(`Sending back to Roblox: ${aiReply}`);
-        // Get the raw message from the AI response
-let aiReply = response.choices[0].message.content;
 
-// This line strips out the <think> blocks entirely
-aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-// Send ONLY the clean answer back to Roblox
-res.json({ reply: aiReply });
-
+        // 3. Send it back out to your game
+        res.json({ reply: aiReply });
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        res.json({ text: `${error.message || "Engine Error"}` });
+        res.json({ reply: `${error.message || "Engine Error"}` });
     }
 });
 
