@@ -24,7 +24,7 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "openai/gpt-oss-120b",
+            model: "openai/gpt-oss-20b",
             max_tokens: 80
         });
 
