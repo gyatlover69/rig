@@ -32,7 +32,15 @@ app.post('/chat', async (req, res) => {
         const aiReply = chatCompletion.choices[0].message.content;
 
         console.log(`Sending back to Roblox: ${aiReply}`);
-        res.json({ text: aiReply });
+        // Get the raw message from the AI response
+let aiReply = response.choices[0].message.content;
+
+// This line strips out the <think> blocks entirely
+aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+// Send ONLY the clean answer back to Roblox
+res.json({ reply: aiReply });
+
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
