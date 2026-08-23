@@ -25,7 +25,6 @@ app.post('/chat', async (req, res) => {
                 { role: "user", content: playerMessage }
             ],
             model: "qwen/qwen3.6-27b",
-, // <-- RIGHT (uses :)
             max_tokens: 80
         });
 
