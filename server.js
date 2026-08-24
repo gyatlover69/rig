@@ -23,19 +23,16 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "qwen/qwen3.6-27b", 
-            max_tokens: 150 // Increased slightly so it has room to finish thinking and give the final answer
+            model: "openai/gpt-oss-20b", // Clean, ultra-fast model with no hidden thoughts
+            max_tokens: 60
         });
 
-        // 1. Get the raw text content safely from the Groq SDK array
-        let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
-
-        // 2. THIS STRIPS OUT THE <think> BLOCKS COMPLETELY
-        aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        // FIXED EXTRACTION PATH: Added [0] index so JavaScript compiles correctly
+        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // 3. Send a clean object back to your Roblox game script
+        // Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
