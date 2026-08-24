@@ -23,12 +23,12 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "llama-3.3-70b-versatile", 
+            model: "meta-llama/llama-3.3-70b-specdec", // Active production-ready Groq model tag
             max_tokens: 60
         });
 
-        // BRACKET INDEX METHOD: 100% stable across all standard Groq text models
-        const aiReply = chatCompletion.choices[0].message.content || "i have nothing to say..";
+        // Pull text safely from the array index block
+        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
