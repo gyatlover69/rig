@@ -23,11 +23,11 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "llama3-8b-8192", // <-- 100% Active, hyper-fast official Groq model
+            model: "qwen/qwen3.6-27b", 
             max_tokens: 80
         });
 
-        // FIXED ARRAY INDEX PATH FOR GROQ-SDK
+        // Safe array extraction path for the Groq Node SDK
         const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
@@ -37,7 +37,6 @@ app.post('/chat', async (req, res) => {
 
     } catch (error) {
         console.error("Groq Core Error Block:", error);
-        // Returns the actual raw network/API error to your Roblox screen so you see exactly what failed
         res.json({ reply: "api issue: " + error.message });
     }
 });
