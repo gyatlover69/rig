@@ -27,10 +27,10 @@ app.post('/chat', async (req, res) => {
             max_tokens: 150
         });
 
-        // 1. FIXED EXTRACTION PATH: Uses choices[0] array formatting required by the Node SDK
+        // 1. FIXED EXTRACTION PATH: Added the clean array list index marker [0]
         let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
-        // 2. STRIPS OUT THE THINKING BLOCKS COMPLETELY
+        // 2. STRIPS OUT THE HIDDEN THINKING TEXT SCRIPT PATTERNS
         aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         console.log(`Sending back to Roblox: ${aiReply}`);
