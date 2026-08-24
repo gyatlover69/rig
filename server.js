@@ -23,16 +23,16 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "openai/gpt-oss-20b", // Clean, ultra-fast model with no hidden thoughts
+            model: "openai/gpt-oss-20b", 
             max_tokens: 60
         });
 
-        // FIXED EXTRACTION PATH: Added [0] index so JavaScript compiles correctly
-        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
+        // 1. FIXED EXTRACTION PATH: Added the exact array [0] index accessor
+        const aiReply = chatCompletion.choices?.[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // Send a clean object back to your Roblox game script
+        // 2. Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
