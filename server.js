@@ -23,16 +23,16 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "openai/gpt-oss-20b", 
+            model: "llama-3.3-70b-versatile", 
             max_tokens: 60
         });
 
-        // 1. FIXED EXTRACTION PATH: Fully cleaned up with no empty characters
-        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
+        // BRACKET INDEX METHOD: 100% stable across all standard Groq text models
+        const aiReply = chatCompletion.choices[0].message.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // 2. Send a clean object back to your Roblox game script
+        // Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
