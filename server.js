@@ -23,16 +23,16 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "openai/gpt-oss-20b", // Official recommended Groq model path
+            model: "qwen/qwen3.6-27b", 
             max_tokens: 60
         });
 
-        // Pull response content securely out of the SDK choices list
-        const aiReply = chatCompletion.choices?.[0]?.message?.content || "i have nothing to say..";
+        // 1. FIXED PATH: Explicit array index accessor handles string extraction perfectly
+        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // Send a clean object back to your Roblox game script
+        // 2. Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
