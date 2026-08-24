@@ -24,15 +24,18 @@ app.post('/chat', async (req, res) => {
                 { role: "user", content: playerMessage }
             ],
             model: "qwen/qwen3.6-27b", 
-            max_tokens: 80
+            max_tokens: 150 // Increased slightly so it has room to finish thinking and give the final answer
         });
 
-        // Safe array extraction path for the Groq Node SDK
-        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
+        // 1. Get the raw text content safely from the Groq SDK array
+        let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
+
+        // 2. THIS STRIPS OUT THE <think> BLOCKS COMPLETELY
+        aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // Send a clean object back to your Roblox game script
+        // 3. Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
