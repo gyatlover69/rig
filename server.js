@@ -23,16 +23,19 @@ app.post('/chat', async (req, res) => {
                 },
                 { role: "user", content: playerMessage }
             ],
-            model: "qwen/qwen3.6-27b", // Groq's official active production model
-            max_tokens: 80
+            model: "qwen/qwen3.6-27b", 
+            max_tokens: 150
         });
 
-        // FIXED EXTRACTION PATH: Uses the required [0] array index for Groq SDK
-        const aiReply = chatCompletion.choices?.[0]?.message?.content || "i have nothing to say..";
+        // 1. FIXED EXTRACTION PATH: Uses choices[0] array formatting required by the Node SDK
+        let aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
+
+        // 2. STRIPS OUT THE THINKING BLOCKS COMPLETELY
+        aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // Send a clean object back to your Roblox game script
+        // 3. Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
