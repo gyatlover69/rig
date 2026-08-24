@@ -27,8 +27,8 @@ app.post('/chat', async (req, res) => {
             max_tokens: 60
         });
 
-        // 1. FIXED EXTRACTION PATH: Added the exact array [0] index accessor
-        const aiReply = chatCompletion.choices?.[0]?.message?.content || "i have nothing to say..";
+        // 1. FIXED EXTRACTION PATH: Fully cleaned up with no empty characters
+        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
