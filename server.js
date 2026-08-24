@@ -8,6 +8,11 @@ app.use(express.json());
 // Securely initialize Groq with your environment key variable
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+// ADDED A ROOT TEST ROUTE: If you visit the website link in your browser, this tells you it's 100% working
+app.get('/', (req, res) => {
+    res.send("Server is online and healthy!");
+});
+
 app.post('/chat', async (req, res) => {
     try {
         const { playerMessage } = req.body;
@@ -24,15 +29,18 @@ app.post('/chat', async (req, res) => {
                 { role: "user", content: playerMessage }
             ],
             model: "qwen/qwen3.6-27b", 
-            max_tokens: 60
+            max_tokens: 150
         });
 
-        // 1. FIXED PATH: Explicit array index accessor handles string extraction perfectly
-        const aiReply = chatCompletion.choices[0]?.message?.content || "i have nothing to say..";
+        // Safe array extraction path for the Groq Node SDK
+        let aiReply = chatCompletion.choices?.[0]?.message?.content || "i have nothing to say..";
+
+        // Strips out the hidden thinking text patterns completely
+        aiReply = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         console.log(`Sending back to Roblox: ${aiReply}`);
 
-        // 2. Send a clean object back to your Roblox game script
+        // Send a clean object back to your Roblox game script
         res.json({ reply: aiReply });
 
     } catch (error) {
@@ -41,5 +49,6 @@ app.post('/chat', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Official Groq SDK active on port ${PORT}`));
+// CRITICAL RENDER FIX: Render forces your server to listen on host 0.0.0.0 or it blocks incoming connections
+const PORT = process.env.PORT || 10000; 
+app.listen(PORT, '0.0.0.0', () => console.log(`Official Groq SDK active on port ${PORT}`));
